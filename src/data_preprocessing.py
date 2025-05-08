@@ -4,6 +4,9 @@ import os
 import logging
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import yaml
+from sklearn.model_selection import train_test_split
+
 
 
 # Ensure the "logs" directory exists
@@ -33,6 +36,20 @@ def clean_data(st):
     """Clean the input string (e.g., strip whitespace)."""
     st = st.strip()
     return st
+
+def save_data(train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str) -> None:
+    """Save the train and test datasets."""
+    try:
+        raw_data_path = os.path.join(data_path, 'processed')
+        os.makedirs(raw_data_path, exist_ok=True)
+        train_data.to_csv(os.path.join(raw_data_path, "train.csv"), index=False)
+        test_data.to_csv(os.path.join(raw_data_path, "test.csv"), index=False)
+        logger.debug('Train and test data saved to %s', raw_data_path)
+    except Exception as e:
+        logger.error('Unexpected error occurred while saving the data: %s', e)
+        raise
+
+
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     """Preprocess the data with machine learning encoding techniques."""
@@ -86,3 +103,34 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     except Exception as e:
         logger.error("Unexpected error during preprocessing: %s", e)
         raise
+
+
+
+
+
+def main():
+    try:
+        # Resolve absolute path to project root
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+        # Construct absolute paths from project root
+        raw_data_path = os.path.join(project_root, 'data', 'raw', 'raw_data.csv')
+        processed_data_path = os.path.join(project_root, 'data')
+
+        # Load and preprocess
+        df = pd.read_csv(raw_data_path)
+        final_df = preprocess_data(df)
+
+        # Train/test split
+        train_data, test_data = train_test_split(final_df, test_size=0.2, random_state=2)
+
+        # Save
+        save_data(train_data, test_data, data_path=processed_data_path)
+
+    except Exception as e: 
+        logger.error('Failed to complete the data preprocessing process: %s', e)
+        print(f"Error: {e}")
+
+
+if __name__ == '__main__':
+    main()

@@ -6,17 +6,19 @@ from sklearn.metrics import accuracy_score, classification_report
 
 
 # Ensure the "logs" directory exists
-log_dir = 'logs'
+log_dir = '../logs'
 os.makedirs(log_dir, exist_ok=True)
 
 # Setting up logger
-logger = logging.getLogger('model buiding')
+logger = logging.getLogger('model_building')
+
 logger.setLevel('DEBUG')
 
 console_handler = logging.StreamHandler()
 console_handler.setLevel('DEBUG')
 
-log_file_path = os.path.join(log_dir, 'model_buiding.log')
+log_file_path = os.path.join(log_dir, 'model_building.log')
+
 file_handler = logging.FileHandler(log_file_path)
 file_handler.setLevel('DEBUG')
 
@@ -28,9 +30,11 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 # Ensure models directory exists
-model_dir = '../models'
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+model_dir = os.path.join(project_root, 'models')
 os.makedirs(model_dir, exist_ok=True)
 model_path = os.path.join(model_dir, 'loan_approval_model.pkl')
+
 
 def train_model(X_train, y_train):
     model = RandomForestClassifier(random_state=42)

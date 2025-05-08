@@ -57,35 +57,36 @@ def load_data(data_url: str) -> pd.DataFrame:
         logger.error('Unexpected error occurred while loading the data: %s', e)
         raise
 
-def save_data(train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str) -> None:
-    """Save the train and test datasets."""
+def save_data_raw(df: pd.DataFrame, data_path: str) -> None:
     try:
-        raw_data_path = os.path.join(data_path, 'processed')
+        raw_data_path = os.path.join(data_path, 'raw')
         os.makedirs(raw_data_path, exist_ok=True)
-        train_data.to_csv(os.path.join(raw_data_path, "train.csv"), index=False)
-        test_data.to_csv(os.path.join(raw_data_path, "test.csv"), index=False)
-        logger.debug('Train and test data saved to %s', raw_data_path)
+
+        save_path = os.path.join(raw_data_path, 'raw_data.csv')
+        df.to_csv(save_path, index=False)
+
+        logger.debug('Data saved to %s', save_path)
     except Exception as e:
         logger.error('Unexpected error occurred while saving the data: %s', e)
         raise
 
+
+
+
 def main():
     try:
-        params = load_params(params_path=os.path.join(os.path.dirname(__file__), '..', 'params.yaml'))
+        # Always resolve paths relative to project root
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        data_path = os.path.join(project_root, 'data')
 
-        test_size = params['data_ingestion']['test_size']
-        data_path = 'https://raw.githubusercontent.com/tusharsarodeAI/Loan-Approval-Prediction-using-MLOps/refs/heads/master/loan_approval_dataset.csv'
-        df = load_data(data_url=data_path)
-        
-        # Import preprocess function from data_preprocessing.py
-        from data_preprocessing import preprocess_data
-        
-        final_df = preprocess_data(df)
-        train_data, test_data = train_test_split(final_df, test_size=test_size, random_state=2)
-        save_data(train_data, test_data, data_path='../data')
+        data_url = 'https://raw.githubusercontent.com/tusharsarodeAI/Loan-Approval-Prediction-using-MLOps/refs/heads/master/loan_approval_dataset.csv'
+        df = load_data(data_url=data_url)
+        save_data_raw(df, data_path=data_path)
+
     except Exception as e:
         logger.error('Failed to complete the data ingestion process: %s', e)
         print(f"Error: {e}")
+
 
 if __name__ == '__main__':
     main()

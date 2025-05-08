@@ -37,10 +37,11 @@ def split_and_scale(train_df, test_df, target_column='loan_status'):
 
 def main():
     try:
-        train_df, test_df = load_data('../data/raw/train.csv', '../data/raw/test.csv')
+        train_df, test_df = load_data('../data/processed/train.csv', '../data/processed/test.csv')
         X_train, X_test, y_train, y_test = split_and_scale(train_df, test_df)
         model = train_model(X_train, y_train)
         evaluate_model(model, X_test, y_test)
+        logger.debug("pipline completed")
     except Exception as e:
         logger.error("Pipeline failed: %s", e)
         print(f"Error: {e}")
